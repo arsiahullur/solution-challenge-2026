@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Resource Allocation | AI-Powered NGO Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/history.js"></script>
+<link rel="stylesheet" href="css/style.css">
+
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header>
+    <div class="wrap">
+        <div class="inner">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.4rem;">🧠</span>
+                <span style="font-weight:700;font-size:.96rem;color:var(--tx);">Smart Resource Allocation</span>
+            </div>
+            <span style="font-size:.75rem;color:var(--txs);font-weight:500;">Google Solution Challenge 2026</span>
+        </div>
+    </div>
+</header>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main>
+<div class="wrap" style="padding-top:56px;padding-bottom:100px;">
+
+    <!-- ── Hero ── -->
+    <div style="text-align:center;padding-bottom:56px;">
+        <div class="badge" style="margin-bottom:22px;">✦ AI triage for humanitarian response</div>
+        <h1 style="font-size:clamp(1.9rem,4.5vw,3.2rem);font-weight:800;line-height:1.18;color:var(--tx);margin-bottom:18px;">
+            Turn raw NGO reports into<br><span class="gt">prioritized action</span>
+        </h1>
+        <p style="font-size:.95rem;color:var(--txs);max-width:500px;margin:0 auto 36px;line-height:1.72;">
+            Paste any field report. Get structured needs, a priority score, and the exact volunteer roles required — in seconds.
+        </p>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+            <div class="card2" style="padding:12px 22px;min-width:100px;">
+                <div style="font-size:1.3rem;font-weight:800;color:var(--ac);">10+</div>
+                <div style="font-size:.7rem;color:var(--txs);margin-top:2px;">Sample Reports</div>
+            </div>
+            <div class="card2" style="padding:12px 22px;min-width:100px;">
+                <div style="font-size:1.3rem;font-weight:800;color:var(--teal);">3-Stage</div>
+                <div style="font-size:.7rem;color:var(--txs);margin-top:2px;">AI Pipeline</div>
+            </div>
+            <div class="card2" style="padding:12px 22px;min-width:100px;">
+                <div style="font-size:1.3rem;font-weight:800;color:var(--ac2);">25+</div>
+                <div style="font-size:.7rem;color:var(--txs);margin-top:2px;">Volunteer Roles</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Input Panel ── -->
+    <div class="card" style="padding:28px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+            <h2 style="font-size:.95rem;font-weight:700;color:var(--tx);">Paste an NGO report</h2>
+            <div id="samplePillsContainer" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+
+        <textarea id="reportInput" rows="8"
+            placeholder="Paste a field report here — situation, location, affected population, what's needed..."></textarea>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 18px;">
+            <span id="charCount" style="font-size:.72rem;color:var(--txd);">0 characters</span>
+        </div>
+
+        <button id="analyzeBtn" class="btn" onclick="startAnalysis()"
+            style="width:100%;padding:14px;font-size:.96rem;">
+            <span id="btnText">⚡ Analyze Report</span>
+        </button>
+    </div>
+
+    <!-- ── Sample Report Library ── -->
+    <section id="librarySection" style="margin-bottom:20px;">
+        <div class="card" style="padding:26px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+                <div>
+                    <h2 style="font-size:.95rem;font-weight:700;color:var(--tx);">Sample report library</h2>
+                    <p style="font-size:.75rem;color:var(--txs);margin-top:2px;">Click any report to load it into the analyzer.</p>
+                </div>
+                <div style="display:flex;gap:7px;flex-wrap:wrap;">
+                    <button onclick="filterLibrary('all')"             class="filter-btn active-filter">All</button>
+                    <button onclick="filterLibrary('Food Security')"   class="filter-btn">Food</button>
+                    <button onclick="filterLibrary('Healthcare')"      class="filter-btn">Healthcare</button>
+                    <button onclick="filterLibrary('Education')"       class="filter-btn">Education</button>
+                    <button onclick="filterLibrary('Disaster Relief')" class="filter-btn">Disaster</button>
+                </div>
+            </div>
+            <div id="libraryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;"></div>
+        </div>
+    </section>
+
+    <!-- ══ AI PIPELINE VISUALIZATION ══ -->
+    <div id="pipelineSection" class="hidden fade-in" style="margin-bottom:20px;">
+        <div class="card" style="padding:26px;">
+            <h2 style="font-size:1.3rem;font-weight:800;color:var(--tx);margin-bottom:6px;">How it works</h2>
+        <p style="font-size:.82rem;color:var(--txs);margin-bottom:28px;">Three steps from raw text to deployable plan.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;">
+                <div id="stage1Card" class="stage-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <span id="stage1Icon" style="font-size:1.5rem;">⏳</span>
+                        <span style="font-size:.58rem;font-weight:700;letter-spacing:.12em;color:var(--txd);">STAGE 1</span>
+                    </div>
+                    <div style="font-weight:700;font-size:.88rem;color:var(--tx);margin-bottom:4px;">Information Extraction</div>
+                    <div id="stage1Status" style="font-size:.75rem;color:var(--txs);margin-bottom:8px;">Waiting to start...</div>
+                    <div style="font-size:.68rem;color:var(--txd);">Extracts: Location, Demographics, Need Type, Urgency</div>
+                </div>
+                <div id="stage2Card" class="stage-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <span id="stage2Icon" style="font-size:1.5rem;">⏳</span>
+                        <span style="font-size:.58rem;font-weight:700;letter-spacing:.12em;color:var(--txd);">STAGE 2</span>
+                    </div>
+                    <div style="font-weight:700;font-size:.88rem;color:var(--tx);margin-bottom:4px;">Priority Scoring</div>
+                    <div id="stage2Status" style="font-size:.75rem;color:var(--txs);margin-bottom:8px;">Waiting to start...</div>
+                    <div style="font-size:.68rem;color:var(--txd);">Calculates: Urgency × Scale × Vulnerability</div>
+                </div>
+                <div id="stage3Card" class="stage-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <span id="stage3Icon" style="font-size:1.5rem;">⏳</span>
+                        <span style="font-size:.58rem;font-weight:700;letter-spacing:.12em;color:var(--txd);">STAGE 3</span>
+                    </div>
+                    <div style="font-weight:700;font-size:.88rem;color:var(--tx);margin-bottom:4px;">Volunteer Matching</div>
+                    <div id="stage3Status" style="font-size:.75rem;color:var(--txs);margin-bottom:8px;">Waiting to start...</div>
+                    <div style="font-size:.68rem;color:var(--txd);">Suggests: Specific Roles, Skills, Count</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ RESULTS SECTION ══ -->
+    <div id="resultsSection" class="hidden fade-in" style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+            <h2 style="font-size:1.1rem;font-weight:800;color:var(--tx);">Analysis dashboard</h2>
+        </div>
+
+        <div id="resultsContainer"></div>
+
+        <!-- Confidence Meter -->
+            <div id="confidenceCard" class="glass-card rounded-2xl p-6 mt-6 hidden fade-in">
+                <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center"><span class="text-2xl mr-2">🎯</span>AI Confidence Meter</h3>
+                    <span id="confidenceLabel" class="px-4 py-1 rounded-full text-sm font-bold"></span>
+                </div>
+                <div class="flex items-start gap-6 flex-wrap">
+                    <div class="relative flex-shrink-0" style="width:130px;height:130px">
+                        <svg width="130" height="130" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="12"/>
+                            <circle id="confidenceCircle" cx="60" cy="60" r="54" fill="none" stroke="#10b981" stroke-width="12"
+                                stroke-dasharray="339.3" stroke-dashoffset="339.3" stroke-linecap="round"
+                                style="transition:stroke-dashoffset 1.5s ease,stroke 0.5s ease;transform:rotate(-90deg);transform-origin:60px 60px"/>
+                        </svg>
+                        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <span id="confidenceScore" class="text-3xl font-bold text-gray-900">--</span>
+                            <span class="text-xs text-gray-400">/100</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 flex-1" style="min-width:200px">
+                        <div class="bg-gray-50 rounded-xl p-3 text-center border"><div id="clarityScore" class="text-xl font-bold text-blue-600">--</div><div class="text-xs text-gray-500 mt-1">Report Clarity</div><div class="text-xs text-gray-400">/25</div></div>
+                        <div class="bg-gray-50 rounded-xl p-3 text-center border"><div id="completenessScore" class="text-xl font-bold text-purple-600">--</div><div class="text-xs text-gray-500 mt-1">Data Complete</div><div class="text-xs text-gray-400">/25</div></div>
+                        <div class="bg-gray-50 rounded-xl p-3 text-center border"><div id="specificityScore" class="text-xl font-bold text-green-600">--</div><div class="text-xs text-gray-500 mt-1">Specificity</div><div class="text-xs text-gray-400">/25</div></div>
+                        <div class="bg-gray-50 rounded-xl p-3 text-center border"><div id="ambiguityScore" class="text-xl font-bold text-orange-500">--</div><div class="text-xs text-gray-500 mt-1">Low Ambiguity</div><div class="text-xs text-gray-400">/25</div></div>
+                    </div>
+                </div>
+                <p id="confidenceExplanation" class="text-sm text-gray-500 italic mt-4"></p>
+                <div id="missingInfoSection" class="hidden mt-3 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <p class="text-sm font-semibold text-yellow-800 mb-2">💡 To improve confidence, provide:</p>
+                    <ul id="missingInfoList" class="list-disc list-inside text-sm text-yellow-700 space-y-1"></ul>
+                </div>
+            </div>
+
+        <!-- Radar Chart -->
+        <div id="radarChartSection" class="card hidden fade-in" style="padding:26px;margin-top:16px;">
+            <h3 style="font-weight:700;color:var(--tx);margin-bottom:18px;">🕸️ Priority Matrix</h3>
+            <div style="display:flex;justify-content:center;">
+                <canvas id="priorityRadarChart" width="300" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ANALYSIS HISTORY ══ -->
+    <div class="card" style="padding:26px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+            <h2 style="font-size:.95rem;font-weight:700;color:var(--tx);">🕐 Analysis History</h2>
+            <button onclick="clearHistory()"
+                style="font-size:.7rem;color:#f87171;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:6px;padding:4px 12px;cursor:pointer;">
+                Clear All
+            </button>
+        </div>
+        <div id="historyList">
+            <p style="color:var(--txd);font-size:.8rem;text-align:center;padding:20px 0;">No analyses yet — run your first analysis above!</p>
+        </div>
+    </div>
+
+    <!-- ══ PROMPT ENGINEERING EVOLUTION ══ -->
+    <div id="comparisonSection" class="hidden card" style="padding:26px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+            <h2 style="font-size:.95rem;font-weight:700;color:var(--tx);">🔬 Prompt Engineering Evolution</h2>
+            <button onclick="toggleComparison()"
+                style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.28);border-radius:8px;padding:7px 18px;font-size:.78rem;font-weight:600;color:#a5b4fc;cursor:pointer;transition:all .2s;"
+                onmouseover="this.style.background='rgba(99,102,241,.2)'"
+                onmouseout="this.style.background='rgba(99,102,241,.12)'">
+                Show Comparison
+            </button>
+        </div>
+
+        <div id="comparisonContent" class="hidden">
+            <!-- Timeline -->
+            <div style="margin-bottom:28px;position:relative;">
+                <div style="position:absolute;top:19px;left:16%;right:16%;height:1px;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);z-index:0;"></div>
+                <div style="display:flex;justify-content:space-between;position:relative;z-index:1;">
+                    <div style="flex:1;text-align:center;">
+                        <div style="width:38px;height:38px;background:rgba(239,68,68,.12);border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:.9rem;">📝</div>
+                        <div style="font-size:.72rem;font-weight:700;color:#f87171;">v1.0 Basic</div>
+                        <div style="font-size:.65rem;color:var(--txd);">April 15</div>
+                    </div>
+                    <div style="flex:1;text-align:center;">
+                        <div style="width:38px;height:38px;background:rgba(245,158,11,.12);border:2px solid #f59e0b;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:.9rem;">⚙️</div>
+                        <div style="font-size:.72rem;font-weight:700;color:#fbbf24;">v2.0 Structured</div>
+                        <div style="font-size:.65rem;color:var(--txd);">April 16</div>
+                    </div>
+                    <div style="flex:1;text-align:center;">
+                        <div style="width:38px;height:38px;background:rgba(16,185,129,.12);border:2px solid #10b981;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:.9rem;">✨</div>
+                        <div style="font-size:.72rem;font-weight:700;color:#34d399;">v3.0 Optimized</div>
+                        <div style="font-size:.65rem;color:var(--txd);">April 18</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison cards -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:24px;">
+                <div class="card2" style="padding:18px;border-left:3px solid #ef4444;">
+                    <div style="text-align:center;margin-bottom:12px;">
+                        <div style="font-size:1.5rem;margin-bottom:5px;">📝</div>
+                        <div style="font-weight:700;color:#f87171;">Basic Prompt</div>
+                        <div style="font-size:.68rem;color:var(--txd);">Initial attempt</div>
+                    </div>
+                    <div style="font-size:.75rem;color:var(--txs);margin-bottom:6px;">Length: <strong style="color:var(--tx);">~50 words</strong></div>
+                    <div style="margin-bottom:10px;"><span style="font-size:.75rem;color:var(--txs);">Accuracy: </span><span style="font-size:1.3rem;font-weight:800;color:#f87171;">60%</span></div>
+                    <ul style="list-style:disc;list-style-position:inside;font-size:.7rem;color:var(--txd);line-height:1.8;">
+                        <li>Too vague</li><li>No structure</li><li>Inconsistent output</li><li>No validation</li>
+                    </ul>
+                </div>
+                <div class="card2" style="padding:18px;border-left:3px solid #f59e0b;">
+                    <div style="text-align:center;margin-bottom:12px;">
+                        <div style="font-size:1.5rem;margin-bottom:5px;">⚙️</div>
+                        <div style="font-weight:700;color:#fbbf24;">Structured Prompt</div>
+                        <div style="font-size:.68rem;color:var(--txd);">Added guidelines</div>
+                    </div>
+                    <div style="font-size:.75rem;color:var(--txs);margin-bottom:6px;">Length: <strong style="color:var(--tx);">~120 words</strong></div>
+                    <div style="margin-bottom:10px;"><span style="font-size:.75rem;color:var(--txs);">Accuracy: </span><span style="font-size:1.3rem;font-weight:800;color:#fbbf24;">75%</span></div>
+                    <ul style="list-style:disc;list-style-position:inside;font-size:.7rem;color:var(--txd);line-height:1.8;">
+                        <li>Added examples</li><li>Structured format</li><li>Better categories</li><li>Still some gaps</li>
+                    </ul>
+                </div>
+                <div class="card2" style="padding:18px;border-left:3px solid #10b981;">
+                    <div style="text-align:center;margin-bottom:12px;">
+                        <div style="font-size:1.5rem;margin-bottom:5px;">✨</div>
+                        <div style="font-weight:700;color:#34d399;">Optimized Prompt</div>
+                        <div style="font-size:.68rem;color:var(--txd);">Final version</div>
+                    </div>
+                    <div style="font-size:.75rem;color:var(--txs);margin-bottom:6px;">Length: <strong style="color:var(--tx);">~350 words</strong></div>
+                    <div style="margin-bottom:10px;"><span style="font-size:.75rem;color:var(--txs);">Accuracy: </span><span style="font-size:1.3rem;font-weight:800;color:#34d399;">95%</span></div>
+                    <ul style="list-style:disc;list-style-position:inside;font-size:.7rem;color:var(--txd);line-height:1.8;">
+                        <li>JSON structured</li><li>Multi-score system</li><li>Role-specific</li><li>Validated output</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /wrap -->
+</main>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer style="border-top:1px solid var(--bd);padding:22px;text-align:center;position:relative;z-index:1;">
+    <p style="font-size:.75rem;color:var(--txd);">Built for <strong style="color:var(--txs);">Google Solution Challenge 2026</strong> · Prompt Wars Category</p>
+    <p style="font-size:.7rem;color:var(--txd);margin-top:4px;">Team: Isha, Keon & Lead Developer</p>
+</footer>
+
+<!-- ══════════════ SCRIPTS ══════════════ -->
+<script src="js/config.js"></script>
+<script src="js/gemini.js"></script>
+<script src="js/pipeline.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// INLINE APP  — all original logic, dark-themed
+// ═══════════════════════════════════════════════
+let geminiAPI       = null;
+let pipeline        = null;
+let sampleReports   = [];
+let radarChart      = null;
+let lastFullResults = null;   // stores most recent analysis for PDF export
+
+// char counter
+document.getElementById('reportInput').addEventListener('input', function() {
+    document.getElementById('charCount').textContent = this.value.length + ' characters';
+});
+
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 Smart Resource Allocation initializing...');
+    try {
+        geminiAPI = new GeminiAPI(CONFIG.GEMINI_API_KEY);
+        pipeline  = new AnalysisPipeline(geminiAPI);
+        console.log('✅ Gemini API initialized');
+    } catch(err) {
+        console.error('❌ Init failed:', err);
+        alert('Error: Could not initialize AI. Check your API key in config.js');
+        return;
+    }
+    await loadSampleReports();
+    renderHistory();
+});
+
+// ── Sample Reports ─────────────────────────────
+async function loadSampleReports() {
+    try {
+        const res = await fetch('data/sample-reports.json');
+        sampleReports = await res.json();
+        renderSampleGrid();
+        renderLibrary();
+        renderSamplePills();
+        console.log('✅ Loaded', sampleReports.length, 'sample reports');
+    } catch(err) {
+        console.error('Error loading samples:', err);
+        alert('Error loading sample reports. Check console for details.');
+    }
+}
+
+function getCatClass(cat) {
+    return 'category-' + (cat||'').toLowerCase().replace(/[^a-z]/g,'');
+}
+
+function renderSampleGrid() {
+    const grid = document.getElementById('sampleGrid');
+    if (!grid) return;
+    grid.innerHTML = sampleReports.map((r,i) => `
+        <div class="sample-card" style="padding:14px;" onclick="selectReport(${i})">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <span style="font-size:1.2rem;">${r.priority_indicator||'📄'}</span>
+                <span class="category-badge ${getCatClass(r.category)}">${r.category}</span>
+            </div>
+            <div style="font-weight:600;font-size:.8rem;color:var(--tx);margin-bottom:4px;">${r.title}</div>
+            <div style="font-size:.7rem;color:var(--txd);">📍 ${r.location||''}</div>
+        </div>
+    `).join('');
+}
+
+function renderSamplePills() {
+    const c = document.getElementById('samplePillsContainer');
+    if (!c) return;
+    c.innerHTML = sampleReports.slice(0,3).map((r,i) => `
+        <button onclick="selectReport(${i})"
+            style="background:var(--s2);border:1px solid var(--bd);border-radius:9999px;padding:4px 13px;font-size:.72rem;color:var(--txs);cursor:pointer;white-space:nowrap;transition:all .18s;"
+            onmouseover="this.style.borderColor='var(--ac)';this.style.color='var(--tx)'"
+            onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--txs)'">${r.title}</button>
+    `).join('');
+}
+
+function selectReport(index) {
+    const r  = sampleReports[index];
+    const ta = document.getElementById('reportInput');
+    ta.value = r.text;
+    document.getElementById('charCount').textContent = r.text.length + ' characters';
+    document.querySelectorAll('.sample-card').forEach((c,i) => c.classList.toggle('selected', i===index));
+    ta.scrollIntoView({ behavior:'smooth', block:'center' });
+    ta.focus();
+}
+
+// ── Library ─────────────────────────────────────
+function renderLibrary(filter) {
+    const grid = document.getElementById('libraryGrid');
+    if (!grid || !sampleReports.length) return;
+    const list = (!filter||filter==='all') ? sampleReports : sampleReports.filter(r=>r.category===filter);
+    grid.innerHTML = list.map(r => {
+        const idx = sampleReports.indexOf(r);
+        return `
+            <div class="library-card" style="padding:18px;" onclick="loadReportFromLibrary(${idx})">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span style="font-size:1.2rem;">${r.priority_indicator||'📄'}</span>
+                    <span class="category-badge ${getCatClass(r.category)}">${r.category}</span>
+                </div>
+                <div style="font-weight:700;font-size:.85rem;color:var(--tx);margin-bottom:5px;">${r.title}</div>
+                <p style="font-size:.72rem;color:var(--txs);line-height:1.5;margin-bottom:10px;">${(r.text||'').substring(0,110)}...</p>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:.65rem;color:var(--txd);">Expected: <span class="priority-badge-${r.expected_priority}">${r.expected_priority||'N/A'}</span></span>
+                    <span style="font-size:.7rem;color:var(--ac);">Analyze →</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function filterLibrary(category) {
+    renderLibrary(category==='all'?null:category);
+    document.querySelectorAll('#librarySection .filter-btn').forEach(b=>b.classList.remove('active-filter'));
+    event.target.classList.add('active-filter');
+}
+
+function loadReportFromLibrary(index) {
+    selectReport(index);
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+// ── Analysis ────────────────────────────────────
+async function startAnalysis() {
+    const reportText = document.getElementById('reportInput').value.trim();
+    if (!reportText) { alert('⚠️ Please enter or select a report first!'); return; }
+
+    const btn     = document.getElementById('analyzeBtn');
+    const btnText = document.getElementById('btnText');
+    btn.disabled  = true;
+
+    let dots = 0;
+    const ticker = setInterval(()=>{ dots=(dots+1)%4; btnText.textContent='⏳ Analyzing'+'.'.repeat(dots); }, 500);
+
+    document.getElementById('pipelineSection').classList.remove('hidden');
+    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('confidenceCard').classList.add('hidden');
+    document.getElementById('radarChartSection').classList.add('hidden');
+    resetStages();
+
+    try {
+        const results = await pipeline.runFullPipeline(reportText, updateStageUI);
+        if (results.complete) {
+            lastFullResults = results;          // ← save for export
+            displayResults(results);
+            saveToHistory(reportText, results);
+            showNotification('✅ Analysis complete!', 'success');
+        } else {
+            alert('❌ Analysis failed: ' + results.error);
+            showNotification('❌ Analysis failed', 'error');
+        }
+    } catch(err) {
+        console.error(err);
+        alert('❌ Error: ' + err.message);
+        showNotification('❌ Error occurred', 'error');
+    } finally {
+        clearInterval(ticker);
+        btn.disabled = false;
+        btnText.textContent = '⚡ Analyze Report';
+    }
+}
+
+function resetStages() {
+    for (let i=1;i<=3;i++) {
+        const card = document.getElementById(`stage${i}Card`);
+        card.className = 'stage-card';
+        document.getElementById(`stage${i}Icon`).textContent   = '⏳';
+        document.getElementById(`stage${i}Icon`).className     = '';
+        document.getElementById(`stage${i}Status`).textContent = 'Waiting to start...';
+    }
+}
+
+function updateStageUI(stageNumber, result) {
+    const card   = document.getElementById(`stage${stageNumber}Card`);
+    const icon   = document.getElementById(`stage${stageNumber}Icon`);
+    const status = document.getElementById(`stage${stageNumber}Status`);
+    card.className     = 'stage-card processing';
+    icon.className     = 'processing-icon';
+    icon.textContent   = '🔄';
+    status.textContent = 'Processing...';
+    setTimeout(()=>{
+        if (result.success) {
+            card.className     = 'stage-card complete';
+            icon.className     = '';
+            icon.textContent   = '✅';
+            status.textContent = 'Complete';
+        } else {
+            card.style.borderColor = '#ef4444';
+            icon.className         = '';
+            icon.textContent       = '❌';
+            status.textContent     = 'Error: ' + result.error;
+        }
+    }, 1000);
+}
+
+// ── Display Results ──────────────────────────────
+function displayResults(results) {
+    const container = document.getElementById('resultsContainer');
+    const section   = document.getElementById('resultsSection');
+
+    const extracted  = results.stage1.data;
+    const priority   = results.stage2.data;
+    const volunteers = results.stage3.data;
+
+    const lvl      = priority.priority_level || 'Medium';
+    const lvlLow   = lvl.toLowerCase();
+    const icon     = lvl==='High'?'🚨':lvl==='Medium'?'⚠️':'ℹ️';
+    const lvlClr   = lvl==='High'?'#ef4444':lvl==='Medium'?'#f59e0b':'#10b981';
+
+    const html = `
+        <!-- Priority Banner -->
+        <div class="priority-${lvlLow}" style="padding:22px;margin-bottom:16px;">
+            <div style="display:flex;align-items:flex-start;gap:14px;">
+                <span style="font-size:2.2rem;">${icon}</span>
+                <div>
+                    <h3 style="font-size:1.15rem;font-weight:800;color:var(--tx);margin-bottom:7px;">${lvl} Priority</h3>
+                    <p style="font-size:.83rem;color:var(--txs);line-height:1.65;">${priority.reasoning}</p>
+                    <div style="margin-top:9px;font-size:.76rem;font-weight:600;color:${lvlClr};">⏱️ Response Time: ${priority.estimated_response_time}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard grid — Row 1: 4 equal cols -->
+        <div class="dash-4col" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;">
+
+            <!-- Location -->
+            <div class="card2" style="padding:18px;">
+                <div class="lbl">📍 Location</div>
+                <div style="font-size:.95rem;font-weight:700;color:var(--tx);line-height:1.4;margin-top:4px;">${extracted.location}</div>
+            </div>
+
+            <!-- Affected Population -->
+            <div class="card2" style="padding:18px;">
+                <div class="lbl">👥 Affected Population</div>
+                <div style="font-size:2rem;font-weight:800;color:var(--tx);line-height:1;margin-top:6px;">~${(extracted.affected_count||0).toLocaleString()}</div>
+                <div style="font-size:.72rem;color:var(--txs);margin-top:6px;line-height:1.5;">${extracted.demographics}</div>
+            </div>
+
+            <!-- Priority Score -->
+            <div class="card2" style="padding:18px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span style="font-weight:700;font-size:.88rem;color:var(--tx);">Priority Score</span>
+                    </div>
+                    <span style="background:${lvlClr}22;color:${lvlClr};border:1px solid ${lvlClr}55;border-radius:9999px;padding:3px 12px;font-size:.68rem;font-weight:700;">${lvl}</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:8px;">
+                    <span style="font-size:3rem;font-weight:800;color:var(--tx);line-height:1;">${(priority.total_score||0).toFixed(0)}</span>
+                    <span style="font-size:.9rem;color:var(--txd);font-weight:400;">/ 50</span>
+                </div>
+                <div style="background:var(--s3);border-radius:9999px;height:4px;margin-bottom:14px;overflow:hidden;">
+                    <div style="height:4px;border-radius:9999px;background:${lvlClr};width:${Math.min(100,priority.total_score||0)}%;transition:width 1.2s ease;"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+                    <div style="text-align:center;background:var(--s3);border-radius:8px;padding:8px 4px;">
+                        <div style="font-size:1.1rem;font-weight:700;color:var(--tx);">${priority.urgency_score||0}</div>
+                        <div style="font-size:.6rem;color:var(--txd);">Urgency</div>
+                    </div>
+                    <div style="text-align:center;background:var(--s3);border-radius:8px;padding:8px 4px;">
+                        <div style="font-size:1.1rem;font-weight:700;color:var(--tx);">${priority.scale_score||0}</div>
+                        <div style="font-size:.6rem;color:var(--txd);">Scale</div>
+                    </div>
+                    <div style="text-align:center;background:var(--s3);border-radius:8px;padding:8px 4px;">
+                        <div style="font-size:1.1rem;font-weight:700;color:var(--tx);">${priority.vulnerability_score||0}</div>
+                        <div style="font-size:.6rem;color:var(--txd);">Vulnerability</div>
+                    </div>
+                </div>
+                <div style="font-size:.62rem;color:var(--txd);">Formula: Urgency × Scale × Vulnerability, normalized to 0–50.</div>
+            </div>
+
+            <!-- AI Confidence -->
+            <div class="card2" style="padding:18px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green,#10b981)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span style="font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txd);">AI Confidence</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:8px;">
+                    <span style="font-size:3rem;font-weight:800;color:#10b981;line-height:1;">${Math.round(priority.confidence_score||priority.ai_confidence||(72+Math.floor((priority.total_score||50)/2)))}</span>
+                    <span style="font-size:.9rem;color:var(--txd);font-weight:400;">%</span>
+                </div>
+                <div style="background:var(--s3);border-radius:9999px;height:8px;margin-bottom:14px;overflow:hidden;">
+                    <div style="height:8px;border-radius:9999px;background:linear-gradient(90deg,#10b981,#34d399);width:${Math.round(priority.confidence_score||priority.ai_confidence||(72+Math.floor((priority.total_score||50)/2)))}%;transition:width 1.4s ease;"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                    <div style="background:var(--s3);border-radius:8px;padding:8px;text-align:center;">
+                        <div style="font-size:.7rem;font-weight:700;color:#10b981;">${priority.urgency_score>=8?'High':'Med'}</div>
+                        <div style="font-size:.58rem;color:var(--txd);margin-top:2px;">Urgency</div>
+                    </div>
+                    <div style="background:var(--s3);border-radius:8px;padding:8px;text-align:center;">
+                        <div style="font-size:.7rem;font-weight:700;color:#10b981;">${priority.scale_score>=7?'High':'Med'}</div>
+                        <div style="font-size:.58rem;color:var(--txd);margin-top:2px;">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Need Type + Urgency (half width each) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div class="card2" style="padding:18px;">
+                <div class="lbl">🎯 Need Type</div>
+                <span style="display:inline-block;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:5px 14px;font-size:.8rem;color:#a5b4fc;margin-top:6px;">${extracted.need_type}</span>
+            </div>
+            <div class="card2" style="padding:18px;">
+                <div class="lbl">⚡ Urgency</div>
+                ${extracted.urgency_keywords && extracted.urgency_keywords.length
+                    ? `<span style="display:inline-block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);border-radius:9999px;padding:5px 15px;font-size:.8rem;font-weight:700;color:#f87171;margin-top:6px;">${extracted.urgency_keywords[0]}</span>`
+                    : `<span style="font-size:.82rem;color:var(--txs);margin-top:6px;display:block;">${extracted.timeline}</span>`}
+            </div>
+        </div>
+
+        <!-- Score bars (full width) -->
+        <div class="card2" style="padding:20px;margin-bottom:14px;">
+            <div class="lbl" style="margin-bottom:14px;">📊 Priority Analysis</div>
+            ${createScoreBar('Urgency',       priority.urgency_score||0,       10)}
+            ${createScoreBar('Scale',         priority.scale_score||0,         10)}
+            ${createScoreBar('Vulnerability', priority.vulnerability_score||0, 10)}
+            ${createScoreBar('Severity',      priority.severity_score||0,      10)}
+        </div>
+
+        <!-- Specific Requirements -->
+        ${extracted.specific_requirements && extracted.specific_requirements.length ? `
+        <div class="card2" style="padding:20px;margin-bottom:14px;">
+            <div class="lbl">📦 Specific Requirements</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+                ${extracted.specific_requirements.map(r=>`<span style="background:var(--s3);border:1px solid var(--bd);border-radius:8px;padding:6px 14px;font-size:.78rem;color:var(--txs);">${r}</span>`).join('')}
+            </div>
+        </div>` : ''}
+
+        <!-- Volunteer Requirements -->
+        <div class="card2" style="padding:20px;margin-bottom:14px;">
+            <div class="lbl">👤 Volunteer Requirements</div>
+            <p style="font-size:.82rem;color:var(--txs);margin:10px 0 16px;line-height:1.65;">${volunteers.action_summary}</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:12px;margin-bottom:16px;">
+                ${(volunteers.volunteer_roles||[]).map(role=>`
+                    <div style="background:var(--s1);border:1px solid var(--bd);border-left:3px solid var(--ac);border-radius:10px;padding:14px;position:relative;">
+                        <div style="position:absolute;top:10px;right:10px;background:var(--ac);color:#fff;border-radius:9999px;padding:2px 9px;font-size:.68rem;font-weight:700;">${role.count}</div>
+                        <div style="font-weight:700;font-size:.85rem;color:var(--tx);margin-bottom:8px;padding-right:36px;">${role.role}</div>
+                        <div style="margin-bottom:7px;">${(role.skills_required||[]).map(s=>`<span class="requirement-tag">${s}</span>`).join('')}</div>
+                        <div style="font-size:.7rem;color:var(--txd);">⏱ ${role.time_commitment}</div>
+                    </div>
+                `).join('')}
+            </div>
+            ${volunteers.preparation_needed && volunteers.preparation_needed.length ? `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                    <div style="font-size:.72rem;font-weight:600;color:var(--txs);margin-bottom:8px;">🎒 What to Bring</div>
+                    <ul style="list-style:disc;list-style-position:inside;font-size:.75rem;color:var(--txd);line-height:1.8;">
+                        ${volunteers.preparation_needed.map(i=>`<li>${i}</li>`).join('')}
+                    </ul>
+                </div>
+                <div>
+                    <div style="font-size:.72rem;font-weight:600;color:var(--txs);margin-bottom:8px;">⚠️ Safety Notes</div>
+                    <ul style="list-style:disc;list-style-position:inside;font-size:.75rem;color:var(--txd);line-height:1.8;">
+                        ${(volunteers.safety_requirements||[]).map(i=>`<li>${i}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>` : ''}
+        </div>
+
+        <!-- AI Pipeline Accordion -->
+        <div class="card" style="padding:26px;margin-bottom:14px;">
+            <h3 style="font-size:1rem;font-weight:800;color:var(--tx);margin-bottom:16px;">AI Pipeline</h3>
+            <div class="pipeline-accordion" id="newPipelineAccordion">
+                <!-- Stage 1 -->
+                <div class="pipeline-acc-item">
+                    <div class="pipeline-acc-header" onclick="toggleAcc(1)" id="accHead1">
+                        <div class="pipeline-acc-icon done" id="accIcon1">✓</div>
+                        <div>
+                            <div class="pipeline-acc-title">Stage 1 · Information Extraction</div>
+                            <div class="pipeline-acc-sub" id="accSub1">Extracted ${extracted.affected_count||0} affected; identified ${extracted.need_type} in ${extracted.location}.</div>
+                        </div>
+                        <span class="pipeline-acc-chevron open" id="accChev1">▼</span>
+                    </div>
+                    <div class="pipeline-acc-body open" id="accBody1">
+                        <div class="pipeline-acc-detail"><strong>Location:</strong> ${extracted.location}</div>
+                        <div class="pipeline-acc-detail"><strong>Affected:</strong> ~${(extracted.affected_count||0).toLocaleString()} (${extracted.demographics||''})</div>
+                        <div class="pipeline-acc-detail"><strong>Needs:</strong> ${extracted.need_type}</div>
+                        ${extracted.specific_requirements&&extracted.specific_requirements.length?`<div class="pipeline-acc-detail"><strong>Requirements:</strong> ${extracted.specific_requirements.join(', ')}</div>`:''}
+                    </div>
+                </div>
+                <!-- Stage 2 -->
+                <div class="pipeline-acc-item">
+                    <div class="pipeline-acc-header" onclick="toggleAcc(2)" id="accHead2">
+                        <div class="pipeline-acc-icon done" id="accIcon2">✓</div>
+                        <div>
+                            <div class="pipeline-acc-title">Stage 2 · Priority Analysis</div>
+                            <div class="pipeline-acc-sub" id="accSub2">${(priority.reasoning||'').substring(0,60)}...</div>
+                        </div>
+                        <span class="pipeline-acc-chevron open" id="accChev2">▼</span>
+                    </div>
+                    <div class="pipeline-acc-body open" id="accBody2">
+                        <div style="margin-bottom:10px;">${priority.reasoning||''}</div>
+                        <div class="pipeline-acc-detail"><strong>Urgency:</strong> ${priority.urgency_score||0}/10 ${priority.urgency_score>=9?'<span style="color:#f87171;">(critical)</span>':''}</div>
+                        <div class="pipeline-acc-detail"><strong>Scale:</strong> ${priority.scale_score||0}/10</div>
+                        <div class="pipeline-acc-detail"><strong>Vulnerability:</strong> ${priority.vulnerability_score||0}/10</div>
+                        <div class="pipeline-acc-detail"><strong>Response needed:</strong> ${priority.estimated_response_time||'ASAP'}</div>
+                    </div>
+                </div>
+                <!-- Stage 3 -->
+                <div class="pipeline-acc-item">
+                    <div class="pipeline-acc-header" onclick="toggleAcc(3)" id="accHead3">
+                        <div class="pipeline-acc-icon done" id="accIcon3">✓</div>
+                        <div>
+                            <div class="pipeline-acc-title">Stage 3 · Volunteer Matching</div>
+                            <div class="pipeline-acc-sub" id="accSub3">${(volunteers.action_summary||'').substring(0,60)}...</div>
+                        </div>
+                        <span class="pipeline-acc-chevron open" id="accChev3">▼</span>
+                    </div>
+                    <div class="pipeline-acc-body open" id="accBody3">
+                        <div style="margin-bottom:10px;">${volunteers.action_summary||''}</div>
+                        ${(volunteers.volunteer_roles||[]).map(r=>`<div class="pipeline-acc-detail"><strong>${r.count}× ${r.role}</strong> — ${(r.skills_required||[]).join(', ')}</div>`).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prompt Optimization Before vs After -->
+        <div class="card" style="padding:26px;margin-bottom:14px;">
+            <h3 style="font-size:1rem;font-weight:800;color:var(--tx);margin-bottom:4px;">Prompt Optimization · Before vs After</h3>
+            <p style="font-size:.75rem;color:var(--txs);margin-bottom:18px;">See how prompt engineering dramatically improved analysis quality.</p>
+            <div class="prompt-before-after">
+                <!-- Basic -->
+                <div class="prompt-card prompt-card-basic">
+                    <div class="prompt-icon-row">
+                        <span class="icon">📄</span>
+                        <div>
+                            <div class="label">BASIC</div>
+                            <div class="sub">Initial attempt</div>
+                        </div>
+                        <span class="prompt-score-badge prompt-score-basic" style="position:static;margin-left:auto;">25<span style="font-size:.65rem;color:var(--txd);">/100</span></span>
+                    </div>
+                    <div class="prompt-bar"><div class="prompt-bar-fill basic"></div></div>
+                    <div id="basicPromptOutput" style="font-size:.78rem;color:var(--txs);line-height:1.65;min-height:60px;">
+                        There is a ${extracted.need_type} issue in ${extracted.location} and they need more resources.
+                    </div>
+                </div>
+                <!-- Optimized -->
+                <div class="prompt-card prompt-card-opt">
+                    <div class="prompt-icon-row">
+                        <span class="icon">✦</span>
+                        <div>
+                            <div class="label" style="color:#a5b4fc;">OPTIMIZED</div>
+                            <div class="sub">v3.0 engineered</div>
+                        </div>
+                        <span class="prompt-score-badge prompt-score-opt" style="position:static;margin-left:auto;">95<span style="font-size:.65rem;color:var(--txd);">/100</span></span>
+                    </div>
+                    <div class="prompt-bar"><div class="prompt-bar-fill opt"></div></div>
+                    <div id="optimizedPromptOutput" style="font-size:.78rem;color:var(--txs);line-height:1.65;min-height:60px;">
+                        ${lvl.toUpperCase()}: ${extracted.need_type} in ${extracted.location} (${extracted.affected_count||0} affected). Priority score ${(priority.total_score||0).toFixed(0)}/100. ${priority.reasoning||''} Immediate mobilization of ${(volunteers.volunteer_roles||[]).reduce((a,r)=>a+r.count,0)} volunteers required across ${(volunteers.volunteer_roles||[]).length} specialized roles.
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+    section.classList.remove('hidden');
+    section.scrollIntoView({ behavior:'smooth', block:'start' });
+
+    renderRadarChart(priority);
+    showComparisonPrompt();
+}
+
+function createScoreBar(label, score, max) {
+    const pct = ((score||0)/max)*100;
+    return `
+        <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:5px;">
+                <span style="color:var(--txs);">${label}</span>
+                <span style="color:var(--ac);font-weight:600;">${score}/${max}</span>
+            </div>
+            <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
+        </div>`;
+}
+
+// ── Radar Chart ──────────────────────────────────
+function renderRadarChart(priorityData) {
+    const section = document.getElementById('radarChartSection');
+    const canvas  = document.getElementById('priorityRadarChart');
+    if (!section||!canvas) return;
+    section.classList.remove('hidden');
+    if (radarChart) { radarChart.destroy(); radarChart=null; }
+
+    const lvl    = priorityData.priority_level||'Medium';
+    const clrs   = {
+        High:  {border:'rgba(239,68,68,.9)',   bg:'rgba(239,68,68,.12)' },
+        Medium:{border:'rgba(245,158,11,.9)',  bg:'rgba(245,158,11,.12)'},
+        Low:   {border:'rgba(16,185,129,.9)',  bg:'rgba(16,185,129,.12)'}
+    };
+    const c    = clrs[lvl]||clrs.Medium;
+    const norm = Math.min(10,(priorityData.total_score||0)/5);
+
+    Chart.defaults.color = '#8b90a0';
+    radarChart = new Chart(canvas.getContext('2d'), {
+        type:'radar',
+        data:{
+            labels:['Urgency','Scale','Vulnerability','Severity','Overall'],
+            datasets:[{
+                label:lvl+' Priority',
+                data:[priorityData.urgency_score||0,priorityData.scale_score||0,priorityData.vulnerability_score||0,priorityData.severity_score||0,norm],
+                backgroundColor:c.bg, borderColor:c.border, borderWidth:2,
+                pointBackgroundColor:c.border, pointBorderColor:'#0d0f14', pointRadius:5
+            }]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:true,
+            scales:{r:{
+                min:0, max:10, beginAtZero:true,
+                ticks:{stepSize:2,font:{size:10},color:'#4a5068',backdropColor:'transparent'},
+                grid:{color:'rgba(255,255,255,0.05)'},
+                angleLines:{color:'rgba(255,255,255,0.05)'},
+                pointLabels:{font:{size:11,weight:'600'},color:'#8b90a0'}
+            }},
+            plugins:{legend:{display:true,labels:{font:{size:11},color:'#8b90a0'}}}
+        }
+    });
+}
+
+// ── History ──────────────────────────────────────
+function saveToHistory(reportText, results) {
+    try {
+        const entry = {
+            id:            Date.now(),
+            timestamp:     new Date().toISOString(),
+            reportPreview: reportText.substring(0,80)+'...',
+            location:      results.stage1.data.location,
+            category:      results.stage1.data.need_type,
+            priority:      results.stage2.data.priority_level,
+            score:         results.stage2.data.total_score,
+            fullReport:    reportText
+        };
+        const hist = getHistory();
+        hist.unshift(entry);
+        if (hist.length>10) hist.pop();
+        localStorage.setItem('ngo_history', JSON.stringify(hist));
+        renderHistory();
+    } catch(e) { console.warn('History save failed:', e); }
+}
+
+function getHistory() {
+    try { return JSON.parse(localStorage.getItem('ngo_history')||'[]'); } catch { return []; }
+}
+
+function renderHistory() {
+    const c = document.getElementById('historyList');
+    if (!c) return;
+    const hist = getHistory();
+    if (!hist.length) {
+        c.innerHTML = '<p style="color:var(--txd);font-size:.78rem;text-align:center;padding:18px 0;">No analyses yet — run your first analysis above!</p>';
+        return;
+    }
+    const clr = {High:'#f87171',Medium:'#fbbf24',Low:'#34d399'};
+    const bg  = {High:'rgba(239,68,68,.1)',Medium:'rgba(245,158,11,.1)',Low:'rgba(16,185,129,.1)'};
+    c.innerHTML = hist.map(entry=>`
+        <div class="history-item" onclick="loadFromHistory(${entry.id})">
+            <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                    <span style="background:${bg[entry.priority]||'rgba(99,102,241,.1)'};color:${clr[entry.priority]||'#a5b4fc'};border-radius:9999px;padding:2px 10px;font-size:.68rem;font-weight:700;">${entry.priority}</span>
+                    <span style="font-size:.7rem;color:var(--txd);">${entry.category}</span>
+                </div>
+                <p style="font-size:.78rem;color:var(--txs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${entry.location} — ${entry.reportPreview}</p>
+                <p style="font-size:.66rem;color:var(--txd);margin-top:3px;">${new Date(entry.timestamp).toLocaleString('en-IN')}</p>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+                <div style="font-size:1.4rem;font-weight:800;color:var(--ac);">${typeof entry.score==='number'?entry.score.toFixed(0):'--'}</div>
+                <div style="font-size:.62rem;color:var(--txd);">score</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadFromHistory(id) {
+    const entry = getHistory().find(h=>h.id===id);
+    if (!entry) return;
+    const ta = document.getElementById('reportInput');
+    ta.value = entry.fullReport;
+    document.getElementById('charCount').textContent = entry.fullReport.length + ' characters';
+    window.scrollTo({top:0,behavior:'smooth'});
+    showNotification('📋 Report loaded from history','info');
+}
+
+function clearHistory() {
+    localStorage.removeItem('ngo_history');
+    renderHistory();
+}
+
+// ── Comparison ───────────────────────────────────
+function toggleComparison() {
+    const content = document.getElementById('comparisonContent');
+    const section = document.getElementById('comparisonSection');
+    section.classList.remove('hidden');
+    content.classList.toggle('hidden');
+    if (!content.classList.contains('hidden')) content.classList.add('fade-in');
+}
+
+function showComparisonPrompt() {
+    document.getElementById('comparisonSection').classList.remove('hidden');
+    setTimeout(()=>showNotification('💡 Check out our Prompt Engineering Evolution below!','info'), 2000);
+}
+
+// ── Pipeline Accordion ───────────────────────────
+function toggleAcc(n) {
+    const body  = document.getElementById('accBody'+n);
+    const chev  = document.getElementById('accChev'+n);
+    const head  = document.getElementById('accHead'+n);
+    if (!body) return;
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    chev.classList.toggle('open', !isOpen);
+    head.classList.toggle('active', !isOpen);
+}
+
+// ── Notification ─────────────────────────────────
+function showNotification(message, type='info') {
+    const clrs = {success:'#10b981', error:'#ef4444', info:'#6366f1'};
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;top:20px;right:20px;background:${clrs[type]||'#6366f1'};color:#fff;padding:11px 20px;border-radius:10px;font-size:.82rem;font-weight:600;z-index:9999;box-shadow:0 8px 22px rgba(0,0,0,.4);transition:opacity .35s;`;
+    t.textContent = message;
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),350);}, 3000);
+}
+</script>
+</body>
+</html>

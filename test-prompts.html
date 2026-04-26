@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Testing - Solution Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+        }
+        
+        .sample-reports {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .sample-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sample-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .sample-card.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .sample-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .sample-category {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .sample-card.selected .sample-category {
+            color: #e9ecef;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .results.active {
+            display: block;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .result-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prompt Testing Dashboard</h1>
+        <p class="subtitle">Solution Challenge 2026 - Day 1 Testing</p>
+
+        <div class="test-section">
+            <h2>Step 1: Select Sample Report</h2>
+            <div class="sample-reports" id="sampleReports"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Step 2: Review/Edit Report</h2>
+            <textarea id="reportInput" placeholder="Select a sample report or paste your own..."></textarea>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="testPrompt()">🚀 Test Prompt V2.0</button>
+            <button class="btn-secondary" onclick="clearResults()">🗑️ Clear Results</button>
+            <button class="btn-secondary" onclick="downloadLogs()">📥 Download Logs</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <h3>🔄 Analyzing with Gemini AI...</h3>
+            <p>This may take 5-10 seconds</p>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Results</h2>
+            
+            <div class="result-box">
+                <div class="result-title">📊 Extracted Data</div>
+                <pre id="extractedData"></pre>
+            </div>
+
+            <div class="result-box">
+                <div class="result-title">🔍 Raw API Response</div>
+                <pre id="rawResponse"></pre>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statDuration">--</div>
+                    <div class="stat-label">Response Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTokens">--</div>
+                    <div class="stat-label">Response Length</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statCalls">--</div>
+                    <div class="stat-label">Total API Calls</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include our modules -->
+    <script src="js/config.js"></script>
+    <script src="js/gemini.js"></script>
+
+    <script>
+        // Initialize Gemini API
+        const gemini = new GeminiAPI(CONFIG.GEMINI_API_KEY);
+
+        // Sample reports data
+        let sampleReports = [];
+
+        // Load sample reports
+        async function loadSampleReports() {
+            try {
+                const response = await fetch('data/sample-reports.json');
+                sampleReports = await response.json();
+                renderSampleReports();
+            } catch (error) {
+                console.error('Error loading samples:', error);
+            }
+        }
+
+        // Render sample report cards
+        function renderSampleReports() {
+            const container = document.getElementById('sampleReports');
+            container.innerHTML = sampleReports.map((report, index) => `
+                <div class="sample-card" onclick="selectReport(${index})">
+                    <div class="sample-title">${report.title}</div>
+                    <div class="sample-category">${report.category}</div>
+                </div>
+            `).join('');
+        }
+
+        // Select a sample report
+        function selectReport(index) {
+            const report = sampleReports[index];
+            document.getElementById('reportInput').value = report.text;
+            
+            // Highlight selected card
+            document.querySelectorAll('.sample-card').forEach((card, i) => {
+                card.classList.toggle('selected', i === index);
+            });
+        }
+
+        // Test prompt with Gemini
+        async function testPrompt() {
+            const input = document.getElementById('reportInput').value.trim();
+            
+            if (!input) {
+                alert('Please select or enter a report first!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+
+            // Create Prompt V2.0
+            const prompt = `You are an expert NGO coordinator analyzing community reports.
+
+Analyze this report and extract:
+1. Category (Food/Health/Education/Disaster/Water/Other)
+2. Priority (High/Medium/Low)
+3. Number of people affected
+4. Location
+
+Report: ${input}
+
+Return your analysis as valid JSON with these exact keys:
+{
+  "category": "",
+  "priority": "",
+  "affected_count": "",
+  "location": ""
+}
+
+IMPORTANT: Return ONLY the JSON, no other text.`;
+
+            try {
+                const startTime = Date.now();
+                
+                // Call Gemini API
+                const response = await gemini.generateContent(prompt);
+                
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+
+                // Extract JSON
+                const extractedData = gemini.extractJSON(response);
+
+                // Display results
+                displayResults(extractedData, response, duration);
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error(error);
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        // Display results
+        function displayResults(data, rawResponse, duration) {
+            document.getElementById('results').classList.add('active');
+            
+            // Extracted    
+            document.getElementById('extractedData').textContent = 
+                JSON.stringify(data, null, 2);
+            
+            // Raw response
+            document.getElementById('rawResponse').textContent = 
+                JSON.stringify(rawResponse, null, 2);
+            
+            // Stats
+            document.getElementById('statDuration').textContent = duration + 'ms';
+            document.getElementById('statTokens').textContent = 
+                JSON.stringify(rawResponse).length + ' chars';
+            document.getElementById('statCalls').textContent = gemini.requestCount;
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Clear results
+        function clearResults() {
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('reportInput').value = '';
+            document.querySelectorAll('.sample-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+
+        // Download logs
+        function downloadLogs() {
+            const logs = gemini.getAPILogs();
+            const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `gemini-api-logs-${new Date().toISOString()}.json`;
+            a.click();
+        }
+
+        // Initialize on page load
+        loadSampleReports();
+    </script>
+</body>
+</html>
