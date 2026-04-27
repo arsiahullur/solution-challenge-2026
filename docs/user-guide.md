@@ -17,7 +17,7 @@
 ### Accessing the Application
 
 **Live Web App:** https://your-project.web.app  
-**GitHub Repository:** https://github.com/your-username/solution-challenge-2026
+**GitHub Repository:** https://github.com/arsiahullur/solution-challenge-2026.git
 
 No installation required - works in any modern web browser.
 
@@ -303,9 +303,7 @@ No - requires internet connection to access Google Gemini API.
 
 ## Support & Feedback
 
-**Found a bug?** Open an issue on GitHub: [repo-link]/issues
-
-**Feature request?** Email: [your-email]
+**Found a bug?** Open an issue on GitHub: [(https://github.com/arsiahullur/solution-challenge-2026.git)]/issues
 
 **General questions?** Check the FAQ in docs/
 

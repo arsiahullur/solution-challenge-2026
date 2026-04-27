@@ -2,8 +2,6 @@
 
 Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
 
----
-
 ## Ways to Contribute
 
 ### 1. Report Bugs
@@ -137,13 +135,5 @@ Checklist
 - Focus on constructive feedback
 - Welcome newcomers
 - Assume good intentions
-
----
-
-## Questions?
-
-Open a Discussion on GitHub or email [your-email].
-
----
 
 **Thank you for contributing!** 🎉

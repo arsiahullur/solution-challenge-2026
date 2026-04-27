@@ -166,12 +166,11 @@ See Slide 11 of our presentation. Planned features:
 ## Contact
 
 **Bug reports:** GitHub Issues  
-**Feature requests:** GitHub Discussions  
-**General inquiries:** [your-email]  
+**Feature requests:** GitHub Discussions   
 
 **Project Links:**
-- Live Demo: [firebase-url]
-- GitHub: [repo-url]
+- Live Demo: [(https://solution-challenge-2026-a8a54.web.app)]
+- GitHub: [(https://github.com/arsiahullur/solution-challenge-2026.git)]
 - Demo Video: [youtube-url]
 
 ---
